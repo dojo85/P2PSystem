@@ -37,8 +37,9 @@ namespace FileExchangePeer.Server
             Task register = new Task(() => RegisterFiles());
             register.Start();
             register.Wait();
-            //FilesRegistered?.Invoke(this, EventArgs.Empty);
+            FilesRegistered?.Invoke(this, EventArgs.Empty);
             _clientHandler.StartListen();
+            
         }
 
         public void StopServer()
@@ -83,7 +84,7 @@ namespace FileExchangePeer.Server
             {
                 var split = file.Split('\\');
                 string fileName = split[^1];
-                Console.WriteLine(fileName);
+                //Console.WriteLine(fileName);
                 fileNames.Add(fileName);
             }
             return fileNames;

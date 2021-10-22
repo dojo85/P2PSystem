@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Net;
+using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using FileExchangePeer.Client;
 using FileExchangePeer.Server;
@@ -9,19 +11,30 @@ namespace FileExchangePeer
     class Program
     {
         private static string _path = @"D:\VSProjects\TECH\P2PExercise\P2PSystem\FileExchangePeer\MyFiles\";
+        private static FileClient _client = new FileClient();
+
+        private static bool _serverReady = false;
+
         static void Main(string[] args)
         {
             IPEndPoint serverEp = new IPEndPoint(IPAddress.Loopback, 10000);
             IPEndPoint clientEp = new IPEndPoint(IPAddress.Loopback, 11000);
 
             FileServer server = new FileServer(serverEp, _path);
-            server.StartServer();
 
-            //server.FilesRegistered += OnFilesRegistered;
+            Task startServerTask = new Task(() => server.StartServer());
+            startServerTask.Start();
 
-            ReadUserInput(server);
-            Console.WriteLine("You can shutdown now");
-            Console.ReadKey();
+            server.FilesRegistered += OnFilesRegistered;
+
+            while (!_serverReady)
+            {
+                Thread.Sleep(500);
+            }
+
+            _client.Start();
+
+
 
         }
 
@@ -38,8 +51,8 @@ namespace FileExchangePeer
 
         private static void OnFilesRegistered(object o, EventArgs e)
         {
-            FileClient clientApp = new FileClient();
-            clientApp.StartClientApp();
+            _serverReady = true;
         }
+
     }
 }

@@ -32,10 +32,24 @@ namespace FileExchangePeer.Server
             Console.ResetColor();
             Console.WriteLine($"Server address: {_ip}:{_port}");
 
-            while (true)
+            bool keepListening = true;
+            while (keepListening)
             {
-                TcpClient socket = _listener.AcceptTcpClient();
-                Task.Run(() => HandleClient(socket));
+                try
+                {
+                    TcpClient socket = _listener.AcceptTcpClient();
+
+                    if (socket.Connected)
+                    {
+                        Task.Run(() => HandleClient(socket));
+                    }
+                    
+                }
+                catch (Exception e)
+                {
+                    keepListening = false;
+                    Console.WriteLine(e);
+                }
             }
         }
 
@@ -101,6 +115,7 @@ namespace FileExchangePeer.Server
 
         public void StopListen()
         {
+            
             _listener.Stop();
         }
 
