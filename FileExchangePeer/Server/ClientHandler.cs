@@ -48,7 +48,7 @@ namespace FileExchangePeer.Server
                 catch (Exception e)
                 {
                     keepListening = false;
-                    Console.WriteLine(e);
+                    //Console.WriteLine(e);
                 }
             }
         }

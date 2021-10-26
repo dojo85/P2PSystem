@@ -34,7 +34,10 @@ namespace FileExchangePeer
 
             _client.Start();
 
+            server.StopServer();
 
+            Console.WriteLine("Press a key to close");
+            Console.ReadKey();
 
         }
 

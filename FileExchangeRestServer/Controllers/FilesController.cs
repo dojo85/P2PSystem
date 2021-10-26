@@ -54,10 +54,5 @@ namespace FileExchangeRestServer.Controllers
             return Ok(file);
         }
 
-        // DELETE api/<FilesController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
     }
 }

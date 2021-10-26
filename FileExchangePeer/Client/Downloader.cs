@@ -43,16 +43,17 @@ namespace FileExchangePeer.Client
                 byte[] buffer = new byte[bytesPerRead];
                 string fullPath = _dirPath + _fileName;
                 //new FileStream(fullPath, FileMode.OpenOrCreate, FileAccess.Write)
-                using (FileStream fs = File.Create(fullPath) )
+                using (FileStream fs = File.Create(fullPath))
                 {
                     Console.WriteLine($"> Start download of: {_fileName}");
                     while (thisRead > 0)
                     {
                         thisRead = ns.Read(buffer, 0, buffer.Length);
                         fs.Write(buffer, 0, thisRead);
+                        Console.Write(".");
                     }
                     fs.Close();
-                    Console.WriteLine("> Filestream closed");
+                    Console.WriteLine("\n> Filestream closed");
                 }
                 client.Close();
                 Console.WriteLine("> Disconnected");

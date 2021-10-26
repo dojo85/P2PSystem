@@ -6,7 +6,10 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
+using System.Transactions;
+using FileExchangeSharedClasses;
 
 namespace FileExchangePeer.Client
 {
@@ -16,6 +19,8 @@ namespace FileExchangePeer.Client
 
         private Downloader _downloader = null;
         private IPEndPoint _serverEp = new IPEndPoint(IPAddress.Loopback, 10000);
+
+        private bool _isRunning = true;
 
         public FileClient()
         {
@@ -31,17 +36,19 @@ namespace FileExchangePeer.Client
             //_downloader.DownloadFile();
             //Console.WriteLine("Log: clientApp end...");
 
-            while (true)
-            {
-                UserInputLoop();
-            }
+            UserInputLoop();
+            
         }
 
         private void UserInputLoop()
         {
-            DisplayUserMenu();
-            string input = Console.ReadLine();
-            StartSelectedFunction(input);
+            while (_isRunning)
+            {
+                DisplayUserMenu();
+                string input = Console.ReadLine();
+                StartSelectedFunction(input);
+            }
+
         }
 
         private void DisplayUserMenu()
@@ -62,8 +69,10 @@ namespace FileExchangePeer.Client
                     PrintAllFilenames(files);
                     break;
                 case "2":
+                    DownloadFile();
                     break;
                 case "3":
+                    _isRunning = false;
                     break;
                 default:
                     break;
@@ -92,6 +101,33 @@ namespace FileExchangePeer.Client
             return fileNames;
         }
 
+        private void DownloadFile()
+        {
+            Console.Write("Enter the file name: ");
+            string fileName = Console.ReadLine();
 
+            try
+            {
+                FileEndPoint ep = GetFileEndPoint(fileName).Result;
+                _downloader = new Downloader(new IPEndPoint(IPAddress.Parse(ep.IPAddress), ep.Port), fileName);
+                _downloader.DownloadFile();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine("An error occurred. Try again.");
+            }
+        }
+
+        private async Task<FileEndPoint> GetFileEndPoint(string fileName)
+        {
+            FileEndPoint ep = new FileEndPoint();
+            using (HttpClient http = new HttpClient())
+            {
+                var result = await http.GetFromJsonAsync<List<FileEndPoint>>("https://localhost:44378/files/" + fileName);
+                ep = result?[0];
+            }
+            return ep;
+        }
     }
 }
